@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odometer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js" integrity="sha512-lzilC+JFd6YV8+vQRNRtU7DOqv5Sa9Ek53lXt/k91HZTJpytHS1L6l1mMKR9K6VVoDt4LiEXaa6XBrYk1YhGTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="src/odometer.min.js"></script>
+    <link rel="stylesheet" href="src/odometer-theme-minimal.css" />
+    <style>
+        body{
+            height: 100vh;
+            background-color: white;
+            color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        body.dark{
+            background-color: black;
+            color: white;
+        }
+        .box{
+            display: flex;
+            align-items: center;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: bold;
+            font-size: 128px;   
+        }
+
+        p.odom{
+            color: black;
+            display: flex;
+        }
+
+        .tutorial h3{
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 28px;
+            border-bottom: 1px solid black;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+        .tutorial h3:hover{
+            color: red;
+            border-bottom: 1px solid red;
+        }
+    </style>
+</head>
+<body class="darks">
+    <div class="box">
+        <p id="odometer-h" class="odom" style="display: none;">
+            <span id="odometer-h1">0</span>
+            <span id="odometer-h2">0</span>:
+        </p>
+        <p id="odometer-m" class="odom" style="display: none;">
+            <span id="odometer-m1">0</span>
+            <span id="odometer-m2">0</span>:
+        </p>
+        <p id="odometer-s" class="odom" style="display: none;">
+            <span id="odometer-s1">0</span>
+            <span id="odometer-s2">0</span>
+        </p>
+    </div>
+    <div class="tutorial">
+        <h3 onclick="openTutorial()">How to setup ?</h3>
+    </div>
+    <script>
+
+        function init(){
+            odometerOptions = { auto: false }; // Disables auto-initialization
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const darkModeSet = urlParams.get("dark");
+            const timeTimer = urlParams.get("time");
+            const timeHours = urlParams.get("hours");
+            const timeMin = urlParams.get("min");
+            const timeSec = urlParams.get("sec");
+            if(darkModeSet == "true"){
+                $("body").addClass("dark")
+            }
+            if(timeTimer !== null){
+                countdown(timeTimer);
+            }
+            else{
+                if(timeSec.length < 0){
+                    timeSec = "00"
+                } 
+                if(timeMin.length < 0){
+                    timeMin = "00"
+                }  
+                if(timeHours.length < 0){
+                    timeHours = "00"
+                }   
+                let time =  timeHours + ":" + timeMin + ":" + timeSec;
+                countdown(time)
+            }
+
+        }
+
+        function countdown(time) {
+            $(".tutorial h3").text("Loading timer ...");
+            $(".tutorial").fadeOut(650);
+            // Split the input time string into hours, minutes, and seconds
+            var odometer_h1 = new Odometer({ el: $('#odometer-h1')[0], value: 0, theme: 'default' });
+            var odometer_h2 = new Odometer({ el: $('#odometer-h2')[0], value: 0, theme: 'default' });
+            var odometer_m1 = new Odometer({ el: $('#odometer-m1')[0], value: 0, theme: 'default' });
+            var odometer_m2 = new Odometer({ el: $('#odometer-m2')[0], value: 0, theme: 'default' });
+            var odometer_s1 = new Odometer({ el: $('#odometer-s1')[0], value: 0, theme: 'default' });
+            var odometer_s2 = new Odometer({ el: $('#odometer-s2')[0], value: 0, theme: 'default' });
+            odometer_h1.render();
+            odometer_h2.render();
+            odometer_m1.render();
+            odometer_m2.render();
+            odometer_s1.render();
+            odometer_s2.render();
+            const timeParts = time.split(':');
+            let hours = parseInt(timeParts[0]);
+            let minutes = parseInt(timeParts[1]);
+            let seconds = parseInt(timeParts[2]);
+
+            // Calculate total seconds
+            let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+            setTimeout(function(){
+                $("#odometer-h").removeAttr("style");
+                $("#odometer-m").removeAttr("style");
+                $("#odometer-s").removeAttr("style");
+            }, 1200)
+
+            // Countdown interval
+            const interval = setInterval(function () {
+                hours = Math.floor(totalSeconds / 3600);
+                minutes = Math.floor((totalSeconds % 3600) / 60);
+                seconds = totalSeconds % 60;
+                console.log(minutes)
+
+                // Display the remaining time
+                newSeconds = seconds.toString().padStart(2, '0');
+                if(hours == 0){
+                    odometer_h2.update(0)
+                    $("#odometer-h").css("display", "none")
+                }
+                else{
+                    newHours = hours.toString().padStart(2, '0');
+                    odometer_h1.update(newHours[0])
+                    odometer_h2.update(newHours[1])
+                }
+                if(minutes == 100){
+                    odometer_m2.update(0)
+                    $("#odometer-m").css("display", "none")
+                }
+                else{
+                    newMinutes = minutes.toString().padStart(2, '0');
+                    odometer_m1.update(newMinutes[0])
+                    odometer_m2.update(newMinutes[1])
+                }
+                odometer_s1.update(newSeconds[0])
+                odometer_s2.update(newSeconds[1])
+
+                // Decrement totalSeconds by 1
+                totalSeconds--;
+
+                // Check if countdown is complete
+                if (totalSeconds < 0) {
+                    clearInterval(interval);
+                    console.log('Countdown complete!');
+                }
+            }, 1000);
+        }
+
+        function openTutorial(){
+            window.open("setup", "loadingTutorial", "toolbar=no,scrollbars=no,resizable=no,top=200,left=500,width=520,height=400")
+        }
+        
+        $(function () {
+            init();
+        });
+    </script>
+</body>
+</html>

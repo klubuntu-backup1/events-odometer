@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to setup Timer ?</title>
+</head>
+<body>
+    <h3>URL Schema</h3>
+    <code>
+        http://events.klubuntu.eu.org/countdown/{arguments}
+    </code>
+    <h3>Arguments</h3>
+    <ol>
+        <li><b>hours</b> - set hours</li>
+        <li><b>min</b> - set minutes</li>
+        <li><b>sec</b> - set seconds</li>
+        <li><b>dark={true/false} - enable dark mode</b></li>
+    </ol>
+    <h3>Example Usage</h3>
+    <code>
+        <a href="#" onclick="tryExample()">http://events.klubuntu.eu.org/countdown?hours=10&min=30&sec=10&dark=true</a>
+    </code>
+    <script>
+        function tryExample(){
+            window.open("http://events.klubuntu.eu.org/countdown?hours=10&min=30&sec=10&dark=true");
+            window.close()
+        }
+    </script>
+</body>
+</html>
